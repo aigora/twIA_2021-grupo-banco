@@ -7,6 +7,7 @@ jaime bustos valera     jaime0010
 Pedro Cabañas Laguna pedrooo8
 Víctor Barrera López victorbarreralopez
 Ana Arroyo Benítez AnaArroyo55130
+Jorge de Rivas Martínez Jorge-88
 ## Objetivos del trabajo
 
 [Lista de los objetivos que se persiguen con el trabajo propuesto.]
