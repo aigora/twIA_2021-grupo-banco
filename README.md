@@ -10,8 +10,6 @@ Ana Arroyo Benítez AnaArroyo55130
 Jorge de Rivas Martínez Jorge-88
 ## Objetivos del trabajo
 
-[Lista de los objetivos que se persiguen con el trabajo propuesto.]
-
 - Crear una interfaz intuitiva para la creación de cuentas y el acceso a las mismas.
 - Que cada cuenta tenga un usuario y contraseña propios, y sólo se permita el acceso a las mismas si la contraseña introducida es la correcta.
 - La creación de un menú en el que se le muestre al usuario distintas opciones dentro de su cuenta (transferencias, etcétera).
