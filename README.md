@@ -8,6 +8,7 @@ Pedro Cabañas Laguna pedrooo8
 Víctor Barrera López victorbarreralopez
 Ana Arroyo Benítez AnaArroyo55130
 Jorge de Rivas Martínez Jorge-88
+Pedro Gabriel Gallardo Lozano pedrogallardolozano
 ## Objetivos del trabajo
 
 - Crear una interfaz intuitiva para la creación de cuentas y el acceso a las mismas.
