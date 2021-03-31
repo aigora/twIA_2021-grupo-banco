@@ -1,6 +1,6 @@
-Descripción:
+-Descripción:
 
-Identificación de sensores y actuadores:
+-Identificación de sensores y actuadores:
 Sensores:
 Los sensores que vamos a utilizar en nuestro proyecto incluirían un pulsador para detectar cuándo se inserta la tarjeta en el cajero
 (cuando esté pulsado es que la tarjeta está dentro) y un teclado numérico que permitirá al usuario introducir la contraseña de la cuenta,
