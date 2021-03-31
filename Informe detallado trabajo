@@ -1,4 +1,9 @@
 -Descripción
+En este trabajo quermos conseguir que un usuario se sienta como en un banco real. Queremos que alguien pueda llegar desde 0 y hacer su cuenta o direcamente meterse en su cuenta, crendo
+nuevos ficheros o cambiando los ya existentes. Ya dentro, el usuario será capaz en un meú de elegir qué quiere hacer, como por ejemplo enviar dinero a otros paises o a otras personas(si es de otro banco se aplicarán cargos),
+meter o sacar dinero de la cuenta(donde se aplicará arduino para saacar dinero, si existe tal cantidad), consultar tu saldo, realizar transacciones, etc. Todos los movimientos serán
+guardando dentro del fichero de cada usuario.
+También podrás acceder como administrador y cambiar datos, mover dinero entre cuentas o borrarlas.
 
 -Identificación de sensores y actuadores
 Sensores:
