@@ -5,3 +5,9 @@ Sensores:
 Los sensores que vamos a utilizar en nuestro proyecto incluirían un pulsador para detectar cuándo se inserta la tarjeta en el cajero
 (cuando esté pulsado es que la tarjeta está dentro) y un teclado numérico que permitirá al usuario introducir la contraseña de la cuenta,
 seleccionar cuánto dinero se quiere utilizar para las transacciones (ya sea transferir, meter o sacar dinero). 
+
+Actuadores:
+Incluiremos distintos tipos de actuadores, empezando por un servomotor que mantendrá la caja bloqueada hasta que se requiera hacer uso del dinero de la caja
+(cuando se introduzca el código de desbloqueo, el servomotor girará y permitirá el acceso a la caja).
+También utilizaremos Leds que se encenderán al desbloquear la caja, y una pantalla LCD en la que se mostrará información variada a lo largo del programa
+(el dinero disponible, el nombre de la cuenta, etcétera).
