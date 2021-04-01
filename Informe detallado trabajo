@@ -2,7 +2,7 @@
 En este trabajo queremos conseguir que el usuario tenga una experiencia parecida a la de un banco real. Al iniciar el programa, el usuario podrá crear una cuenta de cero 
 o iniciar sesión en su cuenta personal, creando nuevos ficheros o modificando los ya existentes. Una vez dentro, se mostrará un menú con varias opciones, 
 como realizar transferencias a otras personas (si son de otro banco se aplicarán cargos), meter o sacar dinero de la cuenta (con un mecanismo basado en Arduino,
-se abrirá una caja de la que sacar o meter dinero, si se dispone de tal cantidad), consultar el saldo, etc. Todos los movimientos se registrarán dentro del fichero de cada usuario.
+se abrirá una caja de la que sacar o meter dinero, si se dispone de tal cantidad), y consultar el saldo disponible. Todos los movimientos se registrarán dentro del fichero de cada usuario.
 También se podrá acceder como administrador y cambiar datos o ajustes, mover dinero entre cuentas y/o borrarlas.
 
 -Identificación de sensores y actuadores
