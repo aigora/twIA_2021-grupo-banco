@@ -1,2 +1,29 @@
-En el banco comenzaremos preguntadndo que si ya es socio o no, llevando al que no es socio a que se haga una cuenta y alque ya es socio a un menú.
+En el banco comenzaremos preguntando que si ya es socio o no, llevando al que no es socio a que se haga una cuenta y al que ya es socio a un menú.
 
+En el menú podrá elegir qué quiere hacer:
+1 ingresar dinero
+2 consultar saldo
+3 sacar dinero
+4 transferencias y trámites
+5 cambiar datos de mi cuenta
+6 consultar movimientos
+7 salir
+
+Si elegimos la opción 1, te pedirá que insertes la tarjeta, teniendo que ser detectada ésta por el arduino(hasta que no sea detectada no se podrá seguir). A continuación
+teclearás la cantidad ingresada y esta será guardada. Si tenemos ese dinero, la placa arduino encenderá el led y activará un motor, el cual desbloquea la caja haciendo posible 
+meter el dinero.
+
+Si elegimos la opción 2, el programa buscará tu fichero y te  mostrará todos tus datos.
+
+Si elegimos la opción 3, te pedirá que insertes la tarjeta, teniendo que ser detectada ésta por el arduino(hasta que no sea detectada no se podrá seguir). A continuación
+teclearás la cantidad que quieres saacar y si es menor o igual de la cantidad de dinero que tienes podrá ser retirada. Si tenemos ese dinero, la placa arduino encenderá el
+led y activará un motor, el cual desbloquea la caja haciendo posible sacar el dinero.
+
+Si elegimos la opción 4, podremos enviar dinero a alguien de nuestro banco o a alguie de otro banco distinto (siempre que tengamos esa cantidad de dinero).
+
+Si elegimos la opción 5, podremos cambiar datos de nuestra cuenta.
+
+Si elegimos la opción 6, nos mostrará todos los moviminetos que se han ralizado en nuestra cuenta.
+Si elegimos la opción 7, te lleva al inicio de sesión.
+
+*despues de acabar nuestros tramites, al final de estos nos preguntará si queremos seguir haciendo algo más o cerrar nuestra sesión.
