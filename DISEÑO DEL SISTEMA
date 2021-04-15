@@ -1,5 +1,5 @@
-El banco comenzará preguntando al usuario si dispone de una cuenta bancaria, en cuyo caso se le dará la opción de iniciar sesión y se le redirigirá al menú principal.
-En caso contrario, se le permitirá crear una cuenta.
+El banco comenzará preguntando al usuario si dispone de una cuenta bancaria, en cuyo caso se le dará la opción de iniciar sesión y, si los datos son correctos, se le redirigirá al menú.
+En caso contrario, se dará la opción de crear una cuenta.
 
 El menú mostrará distintas opciones:
 1 Consultar saldo
@@ -12,12 +12,12 @@ El menú mostrará distintas opciones:
 
 Si el usuario selecciona la opción 1, el programa buscará en el fichero correspondiente y mostrará los datos.
 
-Si el usuario selecciona la opción 2, se le pedirá que inserte la tarjeta, y se comprobará que está ingresada con el pulsador y el arduino (hasta que no sea detectada no se podrá continuar con la operación).
+Si el usuario selecciona la opción 2, se le pedirá que inserte la tarjeta, y se comprobará que está insertada con el pulsador y el arduino (hasta que no sea detectada no se podrá continuar con la operación).
 A continuación se le pedirá al usuario la cantidad a ingresar y esta será guardada (se sumará al saldo disponible). La placa arduino encenderá el led y activará el servomotor,
 el cual desbloqueará la caja haciendo posible ingresar el dinero. Se impedirá la operación si la cantidad introducida es errónea (por ejemplo si contiene números negativos), y se pedirá al usuario que introduzca otro valor.
 
-Si el usuario selecciona la opción 3, se le pedirá que inserte la tarjeta, y se comprobará que está ingresada con el pulsador y el arduino (hasta que no sea detectada no se podrá continuar con la operación).
-A continuación se le pedirá al usuario la cantidad a retirar y esta será guardada (se restará del saldo total). Si se dispone de ese dinero, la placa arduino encenderá el led y activará el servomotor,
+Si el usuario selecciona la opción 3, se le pedirá que inserte la tarjeta, y se comprobará que está insertada con el pulsador y el arduino (hasta que no sea detectada no se podrá continuar con la operación).
+A continuación se le pedirá al usuario la cantidad a retirar y esta será guardada (se restará del saldo disponible). Si se dispone de ese dinero, la placa arduino encenderá el led y activará el servomotor,
 que permitirá el libre acceso a la caja para retirar el dinero. Si el saldo es insuficiente o la cantidad introducida es errónea, se pedirá introducir nuevamente el valor.
 
 Si el usuario selecciona la opción 4, podrá enviar dinero a una cuenta perteneciente al mismo banco (en cuyo caso se comprobará que el destinatario introducido existe y se traspasará el dinero de una cuenta a otra)
