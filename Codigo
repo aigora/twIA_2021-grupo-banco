@@ -1,0 +1,38 @@
+//Bibliotecas
+#include <stdio.h>
+#include <string.h>
+
+//Constantes
+
+//Estructuras
+typedef struct {
+char nombre[30];
+//la contraseña va a ser numerica o alfanumerica como un PIN?
+}CUENTAS;
+
+
+int main() {
+
+//Variables
+CUENTAS cuenta[?];
+
+//Llamada a la función de crear cuenta/iniciar sesion (ns si lo vais a hacer en una o dos funciones)
+
+//Menú principal (opciones, llamada a las funciones dentro de cada una, y salir)
+
+}
+
+
+//Funcion (o funciones) de crear cuenta/iniciar sesion
+
+//Funcion de comprobar saldo
+
+//Funcion de ingresar dinero
+
+//Funcion de retirar dinero
+
+//Funcion de transferencias entre cuentas
+
+//Funcion de ajustes de la cuenta
+
+//Funcion de consultar movimientos (para más adelante)
