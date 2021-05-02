@@ -7,7 +7,7 @@
 //Estructuras
 typedef struct {
 char nombre[30];
-//la contraseña va a ser numerica o alfanumerica como un PIN?
+//la contraseña va a ser alfanumerica o numerica como un PIN?
 }CUENTAS;
 
 
