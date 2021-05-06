@@ -18,7 +18,38 @@ CUENTAS cuenta[?];
 
 //Llamada a la función de crear cuenta/iniciar sesion (ns si lo vais a hacer en una o dos funciones)
 
-//Menú principal (opciones, llamada a las funciones dentro de cada una, y salir)
+int opc;
+
+printf("Elija una operacion:\n\t1. Consultar saldo. \n\t2. Ingresar dinero \n\t3. Retirar dinero. \n\t4. Transferencia. \n\t5. Ajustes. \n\t6. Consultar movimientos. \n\t7. Salir. \n");
+scanf_s("%d", &opc);
+  
+switch (opc)
+	{
+	case 1:
+		break;
+
+	case 2:
+		break;
+		
+	case 3:
+		break;
+
+	case 4:
+		break;
+
+	case 5:
+		break;
+
+	case 6:
+		break;
+
+	case 7:
+		printf("Salir.");
+		break;
+
+	default:
+		printf("Opcion incorrecta.");
+	}  
 
 }
 
