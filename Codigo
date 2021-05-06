@@ -1,69 +1,161 @@
 //Bibliotecas
 #include <stdio.h>
 #include <string.h>
+#include<windows.h>
 
 //Constantes
 
 //Estructuras
 typedef struct {
 char nombre[30];
-//la contraseña va a ser alfanumerica o numerica como un PIN?
+int dni[8];//voy a poner el dni de contraseña
 }CUENTAS;
 
+void crearcuenta();
+void iniciarsesion();
+void ajustescuenta();
+void consultasaldo();
 
-int main() {
+int main() 
+{
 
 //Variables
-CUENTAS cuenta[?];
+CUENTAS cuenta;
+char sn;
+printf("quieres crear una cuenta?\n A CREAR UNA CUENTA\nB INICIAR SESION\n");
+scanf_s("%c",&sn);
+getchar();
 
-//Llamada a la función de crear cuenta/iniciar sesion (ns si lo vais a hacer en una o dos funciones)
-
-int opc;
-
-printf("Elija una operacion:\n\t1. Consultar saldo. \n\t2. Ingresar dinero \n\t3. Retirar dinero. \n\t4. Transferencia. \n\t5. Ajustes. \n\t6. Consultar movimientos. \n\t7. Salir. \n");
-scanf_s("%d", &opc);
-  
-switch (opc)
+if (sn =='A')
+	crearcuenta();
+if (sn == 'B')
+	iniciarsesion();
+}
+void crearcuenta()
+{
+	char nom[30],dni[10],email[15];
+	int i,letra,dinero;
+	printf("porfavor intriduzca todos los datos requeridos\nNombre y apellidos:");
+	gets_s(nom);
+	getchar();
+	do
 	{
-	case 1:
-		break;
+		letra = 0;
+		printf("dni con letra minuscula:\n");
+		gets_s(dni);
+		for (i = 0; i < 10; i++)
+		{
+			if (dni[i] > 96 && dni[i] < 123)
+				letra++;
+		}
+		if (letra == 0)
+			printf("\ndni incorrecto\n");
+	} while (letra == 0);
+	do
+	{
+		letra = 0;
+		printf("intruduzca e-mail:");
+		gets_s(email);
+		for (i = 0; i < 15; i++)
+		{
+			if (email[i] == '@')
+				letra++;
 
-	case 2:
-		break;
-		
-	case 3:
-		break;
+		}
+		if (letra == 0)
+			printf("\nemail incorrecto\n");
+	} while (letra == 0);
+	do
+	{
+		printf("\ndime tu dinero:\n");
+		scanf_s("%d", &dinero);
+	} while (dinero <= 0);
+}
+void iniciarsesion()
+{
+	char usuario[15],dni[10];
+	int opc;
+	printf("usuario:");
+	gets_s(usuario);
+	getchar();
+	printf("\ndni:");
+	gets_s(dni);
+	getchar();
+	//comprobamos con ficheros y entramos
+	printf("Elija una operacion:\n\t1. Consultar saldo. \n\t2. Ingresar dinero \n\t3. Retirar dinero. \n\t4. Transferencia. \n\t5. Ajustes. \n\t6. Consultar movimientos. \n\t7. Salir. \n");
+	scanf_s("%d", &opc);
+	do {
+		printf("Elija una operacion:\n\t1. Consultar saldo. \n\t2. Ingresar dinero o Retirar dinero. \n\t3. Transferencia. \n\t4. Ajustes. \n\t5. Consultar movimientos. \n\t6. Salir. \n");
+		scanf_s("%d", &opc);
+		if (opc == 1)
+		{
+			consultasaldo(usuario);
+		}
+		if (opc == 2)
+		{
+			ingresa_retira(usuario);
+		}
+		if (opc == 3)
+		{
+			transferencia(usuario);
+		}
 
-	case 4:
-		break;
 
-	case 5:
-		break;
+	} while (opc != 6);
 
-	case 6:
-		break;
-
-	case 7:
-		printf("Salir.");
-		break;
-
-	default:
-		printf("Opcion incorrecta.");
-	}  
+	
+}
+void ajustescuenta(char[])
+{
 
 }
+void consultasaldo(char[])
+{
+	//leeremos la tercera linea, que es donde pone el dinero y la imprimiremos
+}
+void ingresa_retira(char[])
+{
+	//leeremos la tercera linea, que es donde pone el dinero
+	int opc,dinero;
+	printf("quieres ingresar o retirar?\ 1\tRetirar\n2\tIngresar");
+	scanf_s("%d", &opc);
+	if (opc == 1)
+	{
+		do
+		{
+			printf("cuanto dinero quieres retirar??");
+			scanf_s("%d", &dinero);
+			//hay que comprobar si se tiene ese dinero
+			//si lo tenemos
+			//dinero de fichero-=dinero
+			//si no lo tenemos
+			printf("dinero insuficiente");
+		}while(//dinero de fichero<dinero);
+			//se imprime el nuevo dinero en el fichero
+	}
+	if (opc == 2)
+	{
+		printf("cuanto dinero quieres ingresar??");
+		scanf_s("%d", &dinero);
+		//dinero de fichero+=dinero
+		//se imprime el nuevo dinero en el fichero
+	}
+}
+void transferencia(char[])
+{
+	char nom[10];
+	int dinero1, dinero2, euros;
+	printf("a que cuenta lo quieres enviar??");
+	gets_s(nom);
+	//abrimos nuestro fichero y el de la otra persona y cogemos los dos datos del dinero y los ponemos
+	//en dinero1 y dinero2
+	printf("cuanto dinero quieres transferir??");
+	scanf_s("%d", &euros);
+	if (euros > dinero1)
+		printf("cantidad insuficiente");
+	if (euros <= dinero1)
+	{
+		//hacer la transferencia y copiar los nuevos datos
+	}
 
-
-//Funcion (o funciones) de crear cuenta/iniciar sesion
-
-//Funcion de comprobar saldo
-
-//Funcion de ingresar dinero
-
-//Funcion de retirar dinero
-
-//Funcion de transferencias entre cuentas
-
-//Funcion de ajustes de la cuenta
-
-//Funcion de consultar movimientos (para más adelante)
+}
