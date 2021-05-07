@@ -13,8 +13,8 @@ void setup() {
 
 void loop() {
 
-  int pulsador, sensor;
-  char serial; //start = '0';
+  int pulsador, pulsador2; //Pulsador 1 para la tarjeta, pulsador 2 para detectar si está la caja insertada
+  char serial;
   
   if (Serial.available() > 0)
   {
@@ -29,9 +29,10 @@ void loop() {
   if (pulsador == HIGH)
   {
     digitalWrite(4, HIGH);
+    //Falta el servomotor
     delay(4000);
-    sensor = digitalRead(3);
-    if (sensor == HIGH)
+    pulsador2 = digitalRead(3);
+    if (pulsador2 == HIGH)
     {
       digitalWrite(4, LOW);
       start = '9';
