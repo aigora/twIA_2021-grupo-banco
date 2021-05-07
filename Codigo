@@ -128,7 +128,7 @@ void consultasaldo(char[] usuario)
 	//leeremos la tercera linea, que es donde pone el dinero y la imprimiremos
 }
 
-void ingresar_retirar(char[] usuario, SerialPort* arduino, char* portName, char* incomingData)
+void ingresa_retiraç(char[] usuario, SerialPort* arduino, char* portName, char* incomingData)
 {
 	//leeremos la tercera linea del fichero, que es donde pone el dinero
 	int opc, dinero;
