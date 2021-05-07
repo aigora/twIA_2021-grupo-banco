@@ -1,3 +1,7 @@
+//Como acabamos de empezar con ficheros, los dejamos para la siguiente versión del código
+//Los dejamos indicados
+
+
 //Bibliotecas
 #include <stdio.h>
 #include <string.h>
@@ -10,154 +14,184 @@
 #define MAX_DATA_LENGTH 255 //Arduino
 
 //Estructuras
-typedef struct {
-char nombre[30];
-int dni[8]; //vamos a poner el dni de contraseña
-}CUENTAS;
+/*typedef struct {
+	char nombre[30];
+	int dni[8]; //ponemos el dni de contraseña
+}CUENTAS;*/
 
 void crearcuenta();
-void iniciarsesion(char[]);
+void iniciarsesion();
 void ajustescuenta();
-void consultasaldo(char[]);
-void transferencia(char[]);
-void ingresa_retira(char[], SerialPort*, char*, char*);
+void consultasaldo();
+void transferencia();
+void ingresa_retira(SerialPort*, char*, char*);
 void autoConnect(SerialPort*, char*);
 
-int main() 
+int main()
 {
-CUENTAS cuenta;
-char sn;
+	//CUENTAS cuenta;
+	char sn;
+	int opc;
 
-printf("quieres crear una cuenta?\n A CREAR UNA CUENTA\nB INICIAR SESION\n");
-scanf_s("%c",&sn);
-getchar();
+	//Arduino
+	SerialPort* arduino;
+	char portName[] = "\\\\.\\COM3"; //Puerto serie
+	char incomingData[MAX_DATA_LENGTH]; //Buffer
+	arduino = (SerialPort*)malloc(sizeof(SerialPort));
 
-if (sn =='A')
-	crearcuenta();
-if (sn == 'B')
-	iniciarsesion();
+	printf("¿Quiere crear una cuenta?\n 1- CREAR UNA CUENTA\n2- INICIAR SESION\n");
+	scanf_s("%c", &sn);
+	getchar();
 
-//Arduino
-SerialPort* arduino;
-char portName[] = "\\\\.\\COM3"; //Puerto serie
-char incomingData[MAX_DATA_LENGTH]; //Buffer
-arduino = (SerialPort*)malloc(sizeof(SerialPort));
+	do
+	{
+		if (sn == '1')
+			crearcuenta();
+		else if (sn == '2')
+			iniciarsesion();
+	} while (sn != '1' && sn != '2');
+	
+	do
+	{
+		printf("Elija una operacion:\n\t1. Consultar saldo. \n\t2. Ingresar dinero o Retirar dinero. \n\t3. Transferencia. \n\t4. Ajustes. \n\t5. Consultar movimientos. \n\t6. Salir. \n");
+		scanf_s("%d", &opc);
+
+		switch (opc)
+		{
+		
+		case 1:
+			consultasaldo();
+			break;
+
+		case 2:
+			ingresa_retira(arduino, portName, incomingData);
+			break;
+
+		case 3:
+			transferencia();
+			break;
+
+		case 4:
+			break;
+
+		case 5:
+			break;
+
+		case 6:
+			printf("Salir.");
+			break;
+
+		default:
+			printf("Opcion incorrecta.");
+		}
+
+	} while (opc != 6);
+
+
 }
 
 void crearcuenta()
 {
-	char nom[30],dni[10],email[15];
-	int i,letra,dinero;
-	printf("porfavor intriduzca todos los datos requeridos\nNombre y apellidos:");
+	char nom[30], dni[10], email[15];
+	int i, letra = 0, num = 0, longmail = 0;
+	float dinero;
+	printf("Por favor, introduzca los datos requeridos:\nNombre y apellidos:");
 	gets_s(nom);
 	getchar();
+
 	do
 	{
 		letra = 0;
-		printf("dni con letra minuscula:\n");
+		printf("\nDNI con letra minuscula:\n");
 		gets_s(dni);
 		for (i = 0; i < 10; i++)
 		{
 			if (dni[i] > 96 && dni[i] < 123)
 				letra++;
+			else
+				num++;
 		}
-		if (letra == 0)
-			printf("\ndni incorrecto\n");
-	} while (letra == 0);
-	do
+		if (letra != 1 || num != 8)
+			printf("\nDNI incorrecto\n");
+	} while (letra != 1 || num != 8);
+
+	do 
 	{
 		letra = 0;
-		printf("intruduzca e-mail:");
+		printf("\nIntroduzca e-mail:");
 		gets_s(email);
-		for (i = 0; i < 15; i++)
+		longmail = strlen(email);
+		for (i = 0; i < longmail; i++)
 		{
 			if (email[i] == '@')
 				letra++;
-
 		}
-		if (letra == 0)
-			printf("\nemail incorrecto\n");
-	} while (letra == 0);
+		if (letra != 1)
+			printf("\nEmail incorrecto.\n");
+	} while (letra != 1);
+	
 	do
 	{
-		printf("\ndime tu dinero:\n");
-		scanf_s("%d", &dinero);
+		printf("\Introduzca su saldo inicial:\n");
+		scanf_s("%f", &dinero);
 	} while (dinero <= 0);
+
+	//Añadiremos las variables a un fichero desde el cual serán accesibles
 }
 
 void iniciarsesion()
 {
-	char usuario[15],dni[10];
+	char usuario[15], dni[10];
 	int opc;
-	printf("usuario:");
+	printf("Usuario:");
 	gets_s(usuario);
 	getchar();
-	printf("\ndni:");
+	printf("\nDNI:");
 	gets_s(dni);
 	getchar();
-	//comprobamos con ficheros y entramos
-	printf("Elija una operacion:\n\t1. Consultar saldo. \n\t2. Ingresar dinero \n\t3. Retirar dinero. \n\t4. Transferencia. \n\t5. Ajustes. \n\t6. Consultar movimientos. \n\t7. Salir. \n");
-	scanf_s("%d", &opc);
-	do {
-		printf("Elija una operacion:\n\t1. Consultar saldo. \n\t2. Ingresar dinero o Retirar dinero. \n\t3. Transferencia. \n\t4. Ajustes. \n\t5. Consultar movimientos. \n\t6. Salir. \n");
-		scanf_s("%d", &opc);
-		if (opc == 1)
-		{
-			consultasaldo(usuario);
-		}
-		if (opc == 2)
-		{
-			ingresa_retira(usuario);
-		}
-		if (opc == 3)
-		{
-			transferencia(usuario);
-		}
-
-
-	} while (opc != 6);
-
-	
+	//comprobamos que existen con un fichero, y entramos en la cuenta correspondiente
 }
 
 void ajustescuenta()
 {
 
 }
-void consultasaldo(char[] usuario)
+
+void consultasaldo()
 {
-	//leeremos la tercera linea, que es donde pone el dinero y la imprimiremos
+	//leerá e imprimirá el saldo de la cuenta correspondiente en el fichero
 }
 
-void ingresa_retiraç(char[] usuario, SerialPort* arduino, char* portName, char* incomingData)
+void ingresa_retira(SerialPort* arduino, char* portName, char* incomingData)
 {
-	//leeremos la tercera linea del fichero, que es donde pone el dinero
+	//leerá y guardará en una variable el saldo de la cuenta correspondiente en el fichero
 	int opc, dinero;
 	char sendData; //Arduino
-	printf("quieres ingresar o retirar?\ 1\tRetirar\n2\tIngresar");
+	printf("¿Quiere ingresar o retirar?\ 1-\tRetirar\n2-\tIngresar");
 	scanf_s("%d", &opc);
+
 	if (opc == 1)
 	{
 		do
 		{
-			printf("cuanto dinero quieres retirar??");
+			printf("¿Cuanto dinero quiere retirar?");
 			scanf_s("%d", &dinero);
-			//hay que comprobar si se tiene ese dinero
-			//si lo tenemos
-			//dinero de fichero-=dinero
-			//si no lo tenemos
-			printf("dinero insuficiente");
-		}while(//dinero de fichero<dinero);
-			//se imprime el nuevo dinero en el fichero
+			//hay que comprobar si se dispone de ese saldo: if(dinero<=saldo)
+			//saldo-=dinero
+			//si no:
+			printf("Dinero insuficiente.");
+		} while (//saldo<dinero);
+			//se imprime el nuevo saldo en el fichero
 	}
+
 	if (opc == 2)
 	{
-		printf("cuanto dinero quieres ingresar??");
+		printf("¿Cuanto dinero quiere ingresar?");
 		scanf_s("%d", &dinero);
-		//dinero de fichero+=dinero
-		//se imprime el nuevo dinero en el fichero
+		//saldo+=dinero
+		//se imprime el nuevo saldo en el fichero
 	}
-	
+
 	//Arduino
 	Crear_Conexion(arduino, portName);
 	autoConnect(arduino, incomingData);
@@ -166,20 +200,24 @@ void ingresa_retiraç(char[] usuario, SerialPort* arduino, char* portName, char*
 void transferencia(char[])
 {
 	char nom[10];
-	int dinero1, dinero2, euros;
-	printf("a que cuenta lo quieres enviar??");
+	int dinero1, dinero2, euros; //Se sacarán del fichero cuando lo incluyamos
+	//Se obtiene el saldo de la cuenta correspondiente en el fichero (dinero1)
+	printf("¿A que cuenta lo quiere enviar?");
 	gets_s(nom);
-	//abrimos nuestro fichero y el de la otra persona y cogemos los dos datos del dinero y los ponemos
-	//en dinero1 y dinero2
-	printf("cuanto dinero quieres transferir??");
+	//Se comparará el nombre introducido con las cuentas del fichero
+	//Si esa cuenta existe:
+	//Se declarará una variable cuyo valor será el saldo correspondiente a dicha cuenta (dinero2)
+	//Si dicha cuenta no existe, se preguntará otra vez con un bucle while
+	printf("¿Cuanto dinero quiere transferir?");
 	scanf_s("%d", &euros);
 	if (euros > dinero1)
-		printf("cantidad insuficiente");
+		printf("Cantidad insuficiente");
 	if (euros <= dinero1)
 	{
-		//hacer la transferencia y copiar los nuevos datos
+		dinero1 -= euros;
+		dinero2 += euros;
 	}
-
+	//Se imprimen los nuevos saldos en el fichero
 }
 
 //Arduino
@@ -200,13 +238,13 @@ void autoConnect(SerialPort* arduino, char* incomingData) {
 	}
 
 	//Aplicacion
-		sendData = '1';
-		writeSerialPort(arduino, &sendData, sizeof(char));
-		while (receiveData != '9')
-		{
-			receiveData = readSerialPort(arduino, incomingData, MAX_DATA_LENGTH);
-		}
-	 
+	sendData = '1';
+	writeSerialPort(arduino, &sendData, sizeof(char));
+	while (receiveData != '9')
+	{
+		receiveData = readSerialPort(arduino, incomingData, MAX_DATA_LENGTH);
+	}
+
 	if (!isConnected(arduino))
 		printf("Se ha perdido la conexión con Arduino\n");
 }
