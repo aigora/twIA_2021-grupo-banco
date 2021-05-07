@@ -192,7 +192,7 @@ void autoConnect(SerialPort* arduino, char* incomingData) {
 		Crear_Conexion(arduino, arduino->portName);
 	}
 
-	//Comprueba si arduino esta connectado
+	//Comprueba si arduino esta conectado
 	if (isConnected(arduino))
 	{
 		printf("Conectado con Arduino en el puerto %s\n", arduino->portName);
