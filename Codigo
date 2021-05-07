@@ -20,6 +20,7 @@ void iniciarsesion(char[]);
 void ajustescuenta();
 void consultasaldo(char[]);
 void transferencia(char[]);
+void ingresa_retira(char[], SerialPort*, char*, char*);
 void autoConnect(SerialPort*, char*);
 
 int main() 
