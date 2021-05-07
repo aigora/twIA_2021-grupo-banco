@@ -1,27 +1,32 @@
 //Bibliotecas
 #include <stdio.h>
 #include <string.h>
-#include<windows.h>
+#include <stdlib.h>
+#include <windows.h>
+#include "SerialPort.h" //Arduino
+#include "SerialPort.c" //Arduino
 
 //Constantes
+#define MAX_DATA_LENGTH 255 //Arduino
 
 //Estructuras
 typedef struct {
 char nombre[30];
-int dni[8];//voy a poner el dni de contraseña
+int dni[8]; //vamos a poner el dni de contraseña
 }CUENTAS;
 
 void crearcuenta();
-void iniciarsesion();
+void iniciarsesion(char[]);
 void ajustescuenta();
-void consultasaldo();
+void consultasaldo(char[]);
+void transferencia(char[]);
+void autoConnect(SerialPort*, char*);
 
 int main() 
 {
-
-//Variables
 CUENTAS cuenta;
 char sn;
+
 printf("quieres crear una cuenta?\n A CREAR UNA CUENTA\nB INICIAR SESION\n");
 scanf_s("%c",&sn);
 getchar();
@@ -30,7 +35,14 @@ if (sn =='A')
 	crearcuenta();
 if (sn == 'B')
 	iniciarsesion();
+
+//Arduino
+SerialPort* arduino;
+char portName[] = "\\\\.\\COM3"; //Puerto serie
+char incomingData[MAX_DATA_LENGTH]; //Buffer
+arduino = (SerialPort*)malloc(sizeof(SerialPort));
 }
+
 void crearcuenta()
 {
 	char nom[30],dni[10],email[15];
@@ -71,6 +83,7 @@ void crearcuenta()
 		scanf_s("%d", &dinero);
 	} while (dinero <= 0);
 }
+
 void iniciarsesion()
 {
 	char usuario[15],dni[10];
@@ -105,18 +118,21 @@ void iniciarsesion()
 
 	
 }
-void ajustescuenta(char[])
+
+void ajustescuenta()
 {
 
 }
-void consultasaldo(char[])
+void consultasaldo(char[] usuario)
 {
 	//leeremos la tercera linea, que es donde pone el dinero y la imprimiremos
 }
-void ingresa_retira(char[])
+
+void ingresar(char[] usuario, SerialPort* arduino, char* portName, char* incomingData)
 {
-	//leeremos la tercera linea, que es donde pone el dinero
-	int opc,dinero;
+	//leeremos la tercera linea del fichero, que es donde pone el dinero
+	int opc, dinero;
+	char sendData; //Arduino
 	printf("quieres ingresar o retirar?\ 1\tRetirar\n2\tIngresar");
 	scanf_s("%d", &opc);
 	if (opc == 1)
@@ -140,7 +156,12 @@ void ingresa_retira(char[])
 		//dinero de fichero+=dinero
 		//se imprime el nuevo dinero en el fichero
 	}
+	
+	//Arduino
+	Crear_Conexion(arduino, portName);
+	autoConnect(arduino, incomingData);
 }
+
 void transferencia(char[])
 {
 	char nom[10];
@@ -158,4 +179,33 @@ void transferencia(char[])
 		//hacer la transferencia y copiar los nuevos datos
 	}
 
+}
+
+//Arduino
+void autoConnect(SerialPort* arduino, char* incomingData) {
+	char sendData = 0, receiveData = '0';
+
+	// Espera la conexion con Arduino
+	while (!isConnected(arduino))
+	{
+		Sleep(100);
+		Crear_Conexion(arduino, arduino->portName);
+	}
+
+	//Comprueba si arduino esta connectado
+	if (isConnected(arduino))
+	{
+		printf("Conectado con Arduino en el puerto %s\n", arduino->portName);
+	}
+
+	//Aplicacion
+		sendData = '1';
+		writeSerialPort(arduino, &sendData, sizeof(char));
+		while (receiveData != '9')
+		{
+			receiveData = readSerialPort(arduino, incomingData, MAX_DATA_LENGTH);
+		}
+	 
+	if (!isConnected(arduino))
+		printf("Se ha perdido la conexión con Arduino\n");
 }
