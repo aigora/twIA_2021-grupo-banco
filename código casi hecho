@@ -1,0 +1,236 @@
+#include<stdio.h>
+#include<windows.h>
+#include<string.h>
+
+void crearcuenta();
+void iniciarsesion();
+void menu(char[]);
+//void ajustescuenta(char[]);
+//void consultasaldo(char[]);
+void ingresa_retira(char[]);
+//void transferencia(char[]);
+
+int main()
+{
+	char sn;
+	printf("quieres crear una cuenta?\n A CREAR UNA CUENTA\nB INICIAR SESION\n");
+	scanf_s("%c", &sn);
+	getchar();
+	if (sn == 'A')
+		crearcuenta();
+	if (sn == 'B');
+	iniciarsesion();
+}
+void crearcuenta()
+{
+	char nom[30], email[30], dni[15];
+	int i, letra, dinero;
+	printf("porfavor intriduzca todos los datos requeridos\nNombre y apellidos:");
+	gets_s(nom);
+	do
+	{
+		i = 0;
+		letra = 0;
+		printf("dni con letra minuscula:\n");
+		gets_s(dni);
+		while (dni[i] != '\0')
+		{
+			if (dni[i] > 96 && dni[i] < 123)//comprobamos que tenga letra minúscula
+				letra++;
+			i++;
+		}
+		if (letra == 0)
+			printf("\ndni incorrecto\n");
+	} while (letra == 0);
+	do
+	{
+		i = 0;
+		letra = 0;
+		printf("intruduzca e-mail:");
+		gets_s(email);
+		while (email[i] != '\0')
+		{
+			if (email[i] == '@')//comprobamos que tenga @
+				letra++;
+			i++;
+
+		}
+		if (letra == 0)
+			printf("\nemail incorrecto\n");
+	} while (letra == 0);
+	do
+	{
+		printf("\ndime tu dinero:\n");
+		scanf_s("%d", &dinero);
+	} while (dinero <= 0);
+	FILE* pf;
+	errno_t err;
+	err = fopen_s(&pf, "gente.txt", "a+");
+
+	if (err == NULL)
+		printf("Apertura Correcta\n");
+	else
+	{
+		printf("Error en la apertura\n");
+		exit(1);
+	}
+	{
+		fprintf_s(pf, "%s\n%s\n%d\n%s\n", nom, dni, dinero, email);//escribimos los datos en el fichero
+	}
+	fclose(pf);
+
+	printf("cerrado");
+}
+void iniciarsesion()
+{
+	char usuario[15], dni[10], usuariocomp[15], dnicomp[10];
+	int opc, i, prueba = 0;
+	printf("usuario:");
+	gets_s(usuario);
+	FILE* pf;
+	errno_t err;
+	err = fopen_s(&pf, "gente.txt", "r");
+
+	if (err == NULL)
+		printf("Apertura Correcta\n");
+	else
+	{
+		printf("Error en la apertura\n");
+		exit(1);
+	}
+	while (!feof(pf))
+	{
+		prueba = 0;
+		fscanf_s(pf, "%s", usuariocomp, _countof(usuariocomp));
+
+		for (i = 0; i < _countof(usuariocomp); i++)
+		{
+			if (usuario[i] == usuariocomp[i])//comprobamos el usuario
+				prueba++;
+		}
+
+		if (prueba == _countof(usuariocomp))//si encontramos el usuario cogemos su contraseña
+		{
+			fscanf_s(pf, "%s", dnicomp, _countof(dnicomp));
+			do
+			{
+				prueba = 0;
+
+				printf("contraseña(dni):");
+				gets_s(dni);
+				for (i = 0; i < _countof(dnicomp); i++)//pedimos la contraseña(que es el dni) y comprobamos
+				{
+					if (dnicomp[i] == dni[i])
+						prueba++;
+				}
+				if (prueba == _countof(dnicomp))//contraseña correcta
+				{
+					printf("todo correcto");
+					menu(usuario);
+				}
+			} while (prueba != _countof(dnicomp));
+
+		}
+	}
+	fclose(pf);
+
+}
+void menu(char* usuario)
+{
+	int opc;
+	printf("que quieres hacer?\n 1\tingresar o retirar dinero\n");
+	scanf_s("%d", &opc);
+	getchar();
+	if (opc == 1);
+	ingresa_retira(usuario);//le damos el usuario para que lo busque en el fichero
+
+}
+void ingresa_retira(char* usuario)
+{
+	char dni[10], usuariocomp[15], dnicomp[10], emailcomp[20];
+	int opc, i, prueba = 0, dinero, movido, tengo = 0;
+	FILE* pf, * pf2;
+	errno_t err, err2;
+	err2 = fopen_s(&pf2, "mover.txt", "w");
+
+	err = fopen_s(&pf, "gente.txt", "r");
+
+
+	if (err == NULL)
+		printf("Apertura Correcta 1\n");
+	else
+	{
+		printf("Error en la apertura 1\n");
+		exit(1);
+	}
+	if (err2 == NULL)
+		printf("Apertura Correcta 2\n");
+	else
+	{
+		printf("Error en la apertura 2\n");
+		exit(1);
+	}
+
+	while (!feof(pf))
+	{
+		prueba = 0;
+		fscanf_s(pf, "%s", usuariocomp, _countof(usuariocomp));
+
+		for (i = 0; i < _countof(usuariocomp); i++)//buscamos el usuario para coger todos sus datos
+		{
+			if (usuario[i] == usuariocomp[i])
+				prueba++;
+		}
+
+		if (prueba == _countof(usuariocomp))
+		{
+			fscanf_s(pf, "%s %d", dnicomp, _countof(dnicomp), &dinero);//cogemos los datos
+			printf("tienes %d euros\n", dinero);
+		}
+
+	}
+	fclose(pf);
+	fopen_s(&pf, "gente.txt", "r");
+
+	printf("quieres\n1  ingresar\n2 retirar?");
+	scanf_s("%d", &opc);
+	getchar();
+	if (opc == 1)
+	{
+		printf("cuanto dinero quieres ingresar?  ");
+		scanf_s("%d", &movido);
+		tengo = dinero + movido;
+		printf("te quedas con %d euros", tengo);
+	}
+	if (opc == 2)
+	{
+		printf("cuanto dinero quieres retirar?  ");
+		scanf_s("%d", &movido);
+		tengo = dinero - movido;
+		printf("te quedas con %d euros", tengo);
+	}
+	while (!feof(pf))//cogemos los datos del usuario y usaremos un fichero para cambiarlos y despues,se volverán a copiar al original.
+	{
+		prueba = 0;
+
+		fscanf_s(pf, "%s%s%d%s", usuariocomp, _countof(usuariocomp), dnicomp, _countof(dnicomp),&dinero, emailcomp, _countof(emailcomp));
+
+		for (i = 0; i < _countof(usuariocomp); i++)
+		{
+			if (usuario[i] == usuariocomp[i])
+				prueba++;
+		}
+
+		if (prueba == _countof(usuariocomp))//si es el usuario seleccionado se le cambia el dinero
+		{
+			fprintf(pf2, "%s\n%s\n%d\n%s\n", usuariocomp, dnicomp, tengo, emailcomp);
+			prueba = 0;
+		}
+		else// si es otra persona no se cambian sus datos
+		{
+			fprintf(pf2, "%s\n%s\n%d\n%s\n", usuariocomp, dnicomp, dinero, emailcomp);
+		}
+	}
+	fclose(pf);
+	fclose(pf2);
+}
