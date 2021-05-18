@@ -542,7 +542,7 @@ void sobreescribir(int lineafinal) { //Copiamos el contenido del fichero nuevo d
 
 //Arduino
 /*int autoConnect(SerialPort* arduino, char* incomingData) {
-	char sendData = 0, receiveData = '0';
+	char sendData = 0;
 
 	// Espera la conexion con Arduino
 	while (!isConnected(arduino))
@@ -564,8 +564,8 @@ void sobreescribir(int lineafinal) { //Copiamos el contenido del fichero nuevo d
 	//Aplicacion
 	while (isConnected(arduino))
 	{
-		receiveData = readSerialPort(arduino, incomingData, MAX_DATA_LENGTH); //Espera señal del arduino
-		if (receiveData != '9')
+		readSerialPort(arduino, incomingData, MAX_DATA_LENGTH); //Espera señal del arduino
+		if (*incomingData == '2')
 			return 1;
 		Sleep(10);
 	}
