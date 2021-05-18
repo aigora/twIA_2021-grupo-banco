@@ -1,11 +1,12 @@
 //El codigo del IDE de Arduino se encuentra en otro archivo en Github
+//El fichero gente.txt se encuentra tambien subido en Github
 
 #include <stdio.h>
 #include <windows.h>
 #include <string.h>
 #include <conio.h> //Para el _getch()
-#include "SerialPort.h" //subido en el github
-#include "SerialPort.c" //subido en el github
+#include "SerialPort.h" //subido en el Github
+#include "SerialPort.c" //subido en el Github
 
 #define DIM 20
 #define MAX_DATA_LENGTH 255 //Arduino
