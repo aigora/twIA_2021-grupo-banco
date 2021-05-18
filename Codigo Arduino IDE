@@ -1,45 +1,71 @@
+#include <Servo.h> //Biblioteca para el servomotor
+
 char start = '0';
+int cerrando = 0;
+int abriendo = 0;
+int desbloqueo = 0;
+Servo myServo;
  
 void setup() {
-
   Serial.begin(9600);
   pinMode(4, OUTPUT);
   pinMode(2, INPUT);
   digitalWrite(2, LOW);
   pinMode(3, INPUT);
   digitalWrite(3, LOW);
-  
+  pinMode(5, INPUT);
+  digitalWrite(5, LOW);
+  myServo.attach(9);
+  myServo.write(0);
 }
 
 void loop() {
-
-  int pulsador, pulsador2; //Pulsador 1 para la tarjeta, pulsador 2 para detectar si está la caja insertada
+  int pulsador, sensord, sensorf;
+  //pulsador: detecta cuando la tarjeta esté insertada
+  //sensord: detecta cuando la caja esté totalmente dentro
+  //sensorf: detecta cuando la caja esté totalmente fuera
   char serial;
   
-  if (Serial.available() > 0)
+  if (Serial.available() > 0) //Cuando detecte una señal del Visual
   {
     serial = Serial.read();
-  if (serial == '1')
+  if (serial == '1') //Si es la señal que queremos
      start = '1';
   }
 
-  if (start == '1')
+  if (start == '1') //Empieza el programa
   {
-    pulsador = digitalRead(2);
-  if (pulsador == HIGH)
-  {
-    digitalWrite(4, HIGH);
-    //Falta el servomotor
-    delay(4000);
-    pulsador2 = digitalRead(3);
-    if (pulsador2 == HIGH)
+    pulsador = digitalRead(2); //Lee el pulsador de la tarjeta
+    
+    if (pulsador == HIGH) //Si la tarjeta está metida
     {
-      digitalWrite(4, LOW);
-      start = '9';
-      Serial.print(start);
+      if (desbloqueo == 0)
+      {
+        myServo.write(180); //Gira el motor y desbloquea la caja
+        desbloqueo = 1;
+      }
+      digitalWrite(4, HIGH); //Enciende la luz
+      sensord = digitalRead(3); //Lee el sensor de dentro
+      sensorf = digitalRead(5); //Lee el sensor de fuera
+      if (sensord == LOW && cerrando == 0) //Se está abriendo la caja
+      {
+        abriendo = 1;
+      }
+      //Si la caja está abierta el bucle se repite hasta que se empiece a cerrar
+      if (sensorf == HIGH && abriendo == 1) //Cuando esté abierta, pasa de abrirse a cerrarse
+      {
+        cerrando = 1;
+        abriendo = 0;
+      }
+      if (sensord == HIGH && cerrando == 1) //Detectar cuando la caja está cerrada
+      {
+        myServo.write(0); //Se bloquea la caja
+        digitalWrite(4, LOW); //Se apaga la luz
+        desbloqueo = 0;
+        cerrando = 0; //Ya está cerrada, deja de cerrarse
+        start = '2';
+        Serial.print(start); //Manda señal de vuelta al Visual de que ha finalizado el programa
+      }
     }
-  } else
-    digitalWrite(4, LOW);
   }
-  
 }
