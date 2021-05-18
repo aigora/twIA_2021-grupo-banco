@@ -1,229 +1,517 @@
-//Como acabamos de empezar con ficheros, los dejamos para la siguiente versión del código.
-//Los dejamos indicados.
-//He copiado y pegado el codigo entero modificado y sin quererlo se han perdido las contribuciones,
-//pero hemos trabajado todos los miembros del grupo.
+//El codigo del IDE de Arduino se encuentra en otro archivo en Github
 
-
-//Bibliotecas
 #include <stdio.h>
-#include <string.h>
-#include <stdlib.h>
 #include <windows.h>
-#include "SerialPort.h" //Arduino
-#include "SerialPort.c" //Arduino
+#include <string.h>
+#include <conio.h> //Para el _getch()
+#include "SerialPort.h" //subido en el github
+#include "SerialPort.c" //subido en el github
 
-//Constantes
+#define DIM 20
 #define MAX_DATA_LENGTH 255 //Arduino
 
-//Estructuras
-/*typedef struct {
-	char nombre[30];
-	int dni[8]; //ponemos el dni de contraseña
-}CUENTAS;*/
+typedef struct {
+	char nombre[DIM];
+	char dni[10];
+	float saldo;
+	char email[DIM];
+} CUENTAS;
 
 void crearcuenta();
-void iniciarsesion();
-void ajustescuenta();
-void consultasaldo();
-void transferencia();
-void ingresa_retira(SerialPort*, char*, char*);
-void autoConnect(SerialPort*, char*);
+int iniciarsesion(CUENTAS*);
+void ajustescuenta(CUENTAS*, int);
+void consultasaldo(CUENTAS);
+void ingresar_retirar(CUENTAS*, int, SerialPort*, char*, char*);
+void transferencias(CUENTAS*, int);
+void sobreescribir(int);
+int autoConnect(SerialPort*, char*);
 
 int main()
 {
-	//CUENTAS cuenta;
-	char sn;
-	int opc;
+	char sn, opc;
+	int lineas;
+	CUENTAS cuenta;
 
 	//Arduino
 	SerialPort* arduino;
 	char portName[] = "\\\\.\\COM3"; //Puerto serie
 	char incomingData[MAX_DATA_LENGTH]; //Buffer
 	arduino = (SerialPort*)malloc(sizeof(SerialPort));
-
-	printf("¿Quiere crear una cuenta?\n 1- CREAR UNA CUENTA\n2- INICIAR SESION\n");
-	scanf_s("%c", &sn);
-	getchar();
-
-	do
-	{
-		if (sn == '1')
-			crearcuenta();
-		else if (sn == '2')
-			iniciarsesion();
-	} while (sn != '1' && sn != '2');
 	
 	do
 	{
-		printf("Elija una operacion:\n\t1. Consultar saldo. \n\t2. Ingresar dinero o Retirar dinero. \n\t3. Transferencia. \n\t4. Ajustes. \n\t5. Consultar movimientos. \n\t6. Salir. \n");
-		scanf_s("%d", &opc);
-
-		switch (opc)
+		printf("\n\t\tBienvenido al banco. Desea crear una cuenta o iniciar sesion?\n\n\tA- CREAR UNA CUENTA\n\tB- INICIAR SESION\n");
+		sn = _getch();
+		if (sn == 'A')
+			crearcuenta();
+		else if (sn == 'B')
 		{
-		
-		case 1:
-			consultasaldo();
-			break;
+			lineas = iniciarsesion(&cuenta); //sabiendo el numero de lineas del fichero se puede evitar el error de imprimir
+			                                 //un \n al final del documento, que luego repercute en el resto del codigo y da errores
+			do
+			{
+				printf("\n\n\t\tElija una operacion:\n\n\t1. Consultar saldo. \n\t2. Ingresar dinero o Retirar dinero. \n\t3. Transferencia. \n\t4. Ajustes. \n\t5. Salir. \n");
+				opc = _getch();
+				switch (opc)
+				{
+				case '1':
+					consultasaldo(cuenta);
+					break;
 
-		case 2:
-			ingresa_retira(arduino, portName, incomingData);
-			break;
+				case '2':
+					ingresar_retirar(&cuenta, lineas, arduino, portName, incomingData);
+					break;
 
-		case 3:
-			transferencia();
-			break;
+				case '3':
+					transferencias(&cuenta, lineas);
+					break;
 
-		case 4:
-			break;
+				case '4':
+					ajustescuenta(&cuenta, lineas);
+					break;
 
-		case 5:
-			break;
+				case '5':
+					break;
 
-		case 6:
-			printf("Salir.");
-			break;
-
-		default:
-			printf("Opcion incorrecta.");
+				default:
+					printf("Opcion incorrecta.");
+				}
+			} while (opc != '5');
 		}
-
-	} while (opc != 6);
-
-
+	} while (sn != 'E'); //no se muestra como opcion al usuario, pero hay una tecla para parar el programa
 }
 
 void crearcuenta()
 {
-	char nom[30], dni[10], email[15];
-	int i, letra = 0, num = 0, longmail = 0;
+	char nom[DIM], email[DIM], dni[10];
 	float dinero;
-	printf("Por favor, introduzca los datos requeridos:\nNombre y apellidos:");
-	gets_s(nom);
-	getchar();
-
+	int i, letra;
+	printf("\nPor favor, introduzca todos los datos requeridos:\nNombre: ");
+	scanf_s("%20s", nom, (unsigned)_countof(nom));
 	do
 	{
+		i = 0;
 		letra = 0;
-		printf("\nDNI con letra minuscula:\n");
-		gets_s(dni);
-		for (i = 0; i < 10; i++)
+		printf("\nDNI con letra minuscula: ");
+		scanf_s("%10s", dni, (unsigned)_countof(dni));
+		while (dni[i] != '\0')
 		{
-			if (dni[i] > 96 && dni[i] < 123)
+			if (dni[i] > 96 && dni[i] < 123)//comprobamos que tenga letra minúscula
 				letra++;
-			else
-				num++;
+			i++;
 		}
-		if (letra != 1 || num != 8)
-			printf("\nDNI incorrecto\n");
-	} while (letra != 1 || num != 8);
-
-	do 
-	{
-		letra = 0;
-		printf("\nIntroduzca e-mail:");
-		gets_s(email);
-		longmail = strlen(email);
-		for (i = 0; i < longmail; i++)
-		{
-			if (email[i] == '@')
-				letra++;
-		}
-		if (letra != 1)
-			printf("\nEmail incorrecto.\n");
-	} while (letra != 1);
-	
+		if (letra == 0)
+			printf("\nDNI incorrecto.");
+	} while (letra == 0);
 	do
 	{
-		printf("\Introduzca su saldo inicial:\n");
+		i = 0;
+		letra = 0;
+		printf("\nIntroduzca e-mail: ");
+		scanf_s("%20s", email, (unsigned)_countof(email));
+		while (email[i] != '\0')
+		{
+			if (email[i] == '@')//comprobamos que tenga @
+				letra++;
+			i++;
+
+		}
+		if (letra == 0)
+			printf("\nEmail incorrecto.");
+	} while (letra == 0);
+	do
+	{
+		printf("\nIntroduzca su saldo actual: ");
 		scanf_s("%f", &dinero);
-	} while (dinero <= 0);
+	} while (dinero <= 0.0);
+	
+	FILE* pf;
+	errno_t err;
+	err = fopen_s(&pf, "gente.txt", "a+");
 
-	//Añadiremos las variables a un fichero desde el cual serán accesibles
-}
-
-void iniciarsesion()
-{
-	char usuario[15], dni[10];
-	int opc;
-	printf("Usuario:");
-	gets_s(usuario);
-	getchar();
-	printf("\nDNI:");
-	gets_s(dni);
-	getchar();
-	//comprobamos que existen con un fichero, y entramos en la cuenta correspondiente
-}
-
-void ajustescuenta()
-{
-
-}
-
-void consultasaldo()
-{
-	//leerá e imprimirá el saldo de la cuenta correspondiente en el fichero
-}
-
-void ingresa_retira(SerialPort* arduino, char* portName, char* incomingData)
-{
-	//leerá y guardará en una variable el saldo de la cuenta correspondiente en el fichero
-	int opc, dinero;
-	char sendData; //Arduino
-	printf("¿Quiere ingresar o retirar?\ 1-\tRetirar\n2-\tIngresar");
-	scanf_s("%d", &opc);
-
-	if (opc == 1)
+	if (err != NULL)
 	{
-		do
+		printf("\nError en la apertura.");
+		exit(1);
+	}
+
+	fprintf_s(pf, "\n%s %s %.2f %s", nom, dni, dinero, email); //escribimos los datos en el fichero
+
+	if (fclose(pf) != 0)
+		printf("\nProblemas al cerrar el fichero.");
+
+	printf("\n\tCuenta creada correctamente.");
+}
+
+int iniciarsesion(CUENTAS* cuenta)
+{
+	char usuario[DIM], usuariocomp[DIM], dnicomp[10], dni[10], emailcomp[DIM];
+	float saldocomp;
+	int lineas = 0;
+
+	FILE* pf;
+	errno_t err;
+	err = fopen_s(&pf, "gente.txt", "r");
+
+	if (err != NULL)
+	{
+		printf("\nError en la apertura.");
+		exit(1);
+	}
+
+	do
+	{
+		printf("\nUsuario: ");
+		scanf_s("%20s", usuario, (unsigned)_countof(usuario));
+
+		rewind (pf);
+		while (!feof(pf))
 		{
-			printf("¿Cuanto dinero quiere retirar?");
-			scanf_s("%d", &dinero);
-			//hay que comprobar si se dispone de ese saldo: if(dinero<=saldo)
-			//saldo-=dinero
-			//si no:
-			printf("Dinero insuficiente.");
-		} while (//saldo<dinero);
-			//se imprime el nuevo saldo en el fichero
-	}
+			fscanf_s(pf, "%s%s%f%s", usuariocomp, _countof(usuariocomp), dnicomp, _countof(dnicomp), &saldocomp, emailcomp, _countof(emailcomp));
 
-	if (opc == 2)
-	{
-		printf("¿Cuanto dinero quiere ingresar?");
-		scanf_s("%d", &dinero);
-		//saldo+=dinero
-		//se imprime el nuevo saldo en el fichero
-	}
+			if (strcmp(usuario, usuariocomp) == 0)
+			{
+				strcpy_s(cuenta->nombre, usuariocomp);
 
-	//Arduino
-	Crear_Conexion(arduino, portName);
-	autoConnect(arduino, incomingData);
+				do
+				{
+					printf("\nContrasena (DNI): ");
+					scanf_s("%10s", dni, (unsigned)_countof(dni));
+
+				} while (strcmp(dni, dnicomp) != 0);
+
+				strcpy_s(cuenta->dni, dnicomp);
+				cuenta->saldo = saldocomp;
+				strcpy_s(cuenta->email, emailcomp);
+				printf("\n\n\tHola de nuevo!");
+			}
+			lineas++;
+		}
+	} while (strcmp(cuenta->nombre, usuario) != 0);
+
+	if (fclose(pf) != 0)
+		printf("\nProblemas al cerrar el fichero.");
+	return lineas;
 }
 
-void transferencia(char[])
+void consultasaldo(CUENTAS cuenta)
 {
-	char nom[10];
-	int dinero1, dinero2, euros; //Se sacarán del fichero cuando lo incluyamos
-	//Se obtiene el saldo de la cuenta correspondiente en el fichero (dinero1)
-	printf("¿A que cuenta lo quiere enviar?");
-	gets_s(nom);
-	//Se comparará el nombre introducido con las cuentas del fichero
-	//Si esa cuenta existe:
-	//Se declarará una variable cuyo valor será el saldo correspondiente a dicha cuenta (dinero2)
-	//Si dicha cuenta no existe, se preguntará otra vez con un bucle while
-	printf("¿Cuanto dinero quiere transferir?");
-	scanf_s("%d", &euros);
-	if (euros > dinero1)
-		printf("Cantidad insuficiente");
-	if (euros <= dinero1)
+	printf("\n\nSu saldo actual es de: %.2f euros.", cuenta.saldo);
+}
+
+void ingresar_retirar(CUENTAS* cuenta, int lineafinal, SerialPort* arduino, char* portName, char* incomingData)
+{
+	char usuariocomp[DIM], dnicomp[10], emailcomp[DIM], opc;
+	float movido, saldocomp;
+	int prueba = 0, ard, linea = 0, i;
+
+	do {
+	printf("\n\n\t\tElija una opcion:\n\t1- Ingresar\n\t2- Retirar\n");
+	opc = _getch();
+		if (opc == '1')
+		{
+			printf("\nCuanto dinero desea ingresar? ");
+			scanf_s("%f", &movido);
+			//Arduino
+			Crear_Conexion(arduino, portName);
+			ard = autoConnect(arduino, incomingData);
+			if (ard == 1)
+			{
+				printf("\nIngreso completado correctamente.");
+				cuenta->saldo += movido;
+			}
+			else
+				printf("\nSe ha producido un error al ingresar el dinero.");
+		} else if (opc == '2')
+		{
+			printf("\nCuanto dinero desea retirar? ");
+			scanf_s("%f", &movido);
+			//Arduino
+			Crear_Conexion(arduino, portName);
+			ard = autoConnect(arduino, incomingData);
+			if (ard == 1)
+			{
+				printf("\nRetirada completada correctamente.");
+				cuenta->saldo -= movido;
+			}
+			else
+				printf("\nSe ha producido un error al retirar el dinero.");
+		}
+	} while (opc != '1' && opc != '2');
+	
+	if (ard == 1)
 	{
-		dinero1 -= euros;
-		dinero2 += euros;
+		FILE* pf, * pf2;
+		errno_t err, err2;
+		err = fopen_s(&pf, "gente.txt", "r");
+		err2 = fopen_s(&pf2, "mover.txt", "w");
+
+		if (err != NULL)
+		{
+			printf("Error en la apertura.\n");
+			exit(1);
+		}
+
+		if (err2 != NULL)
+		{
+			printf("Error en la apertura 2.\n");
+			exit(1);
+		}
+
+		while (!feof(pf)) //Cogemos los datos del usuario y los copiamos a un fichero vacío, para luego copiarlos de vuelta
+		{
+			prueba = 0;
+			linea++;
+
+			fscanf_s(pf, "%s%s%f%s", usuariocomp, _countof(usuariocomp), dnicomp, _countof(dnicomp), &saldocomp, emailcomp, _countof(emailcomp));
+
+			//Alternativa al strcmp
+			for (i = 0; (unsigned) i < strlen(usuariocomp); i++)
+			{
+				if (cuenta->nombre[i] == usuariocomp[i]) //Comprobamos el usuario
+					prueba++;
+			}
+			if (prueba == strlen(usuariocomp)) //Si es el usuario seleccionado se le cambia el dinero
+				fprintf(pf2, "%s %s %.2f %s", usuariocomp, dnicomp, cuenta->saldo, emailcomp);
+			else //Si es otra persona no se cambian sus datos
+				fprintf(pf2, "%s %s %.2f %s", usuariocomp, dnicomp, saldocomp, emailcomp);
+
+			if (linea != lineafinal)
+				fprintf(pf2, "\n");
+		} 
+
+		if (fclose(pf) != 0)
+			printf("Problemas al cerrar el fichero.");
+		if (fclose(pf2) != 0)
+			printf("Problemas al cerrar el fichero.");
+
+		sobreescribir(lineafinal); //Accedemos a una funcion para sobreescribir el fichero original con el nuevo
+
+		printf("\nSu saldo ha sido actualizado, su saldo actual es de %.2f euros.", cuenta->saldo);
 	}
-	//Se imprimen los nuevos saldos en el fichero
+}
+
+void transferencias(CUENTAS* cuenta, int lineafinal)
+{
+	char usuariocomp[DIM], usuariodestino[DIM], dnicomp[10], emailcomp[DIM];
+	float saldocomp, saldodestino = 0, movido;
+	int linea = 0;
+	FILE* pf, * pf2;
+	errno_t err, err2;
+
+	printf("\nIntroduzca la cantidad que desea transferir: ");
+	scanf_s("%f", &movido);
+	printf("\nA que cuenta quiere transferir el dinero? ");
+	scanf_s("%20s", usuariodestino, (unsigned)_countof(usuariodestino));
+	
+	err = fopen_s(&pf, "gente.txt", "r");
+
+	if (err != NULL)
+	{
+		printf("\nError en la apertura 1.");
+		exit(1);
+	}
+
+	while (!feof(pf))
+	{
+		fscanf_s(pf, "%s%s%f%s", usuariocomp, _countof(usuariocomp), dnicomp, _countof(dnicomp), &saldocomp, emailcomp, _countof(emailcomp));
+
+		if (strcmp(usuariodestino, usuariocomp) == 0)
+		{
+			saldodestino = saldocomp;
+		}
+	}
+
+	//Cambiamos saldo de la estructura (origen) y saldodestino
+	cuenta->saldo -= movido;
+	saldodestino += movido;
+
+	err2 = fopen_s(&pf2, "mover.txt", "w");
+
+	if (err2 != NULL)
+	{
+		printf("\nError en la apertura 2.");
+		exit(1);
+	}
+
+	rewind(pf);
+	while (!feof(pf)) //Cogemos los datos del usuario y los copiamos a un fichero vacio, para luego copiarlos de vuelta
+	{
+		linea++;
+
+		fscanf_s(pf, "%s%s%f%s", usuariocomp, _countof(usuariocomp), dnicomp, _countof(dnicomp), &saldocomp, emailcomp, _countof(emailcomp));
+		if (strcmp(cuenta->nombre, usuariocomp) == 0) //Si es el usuario origen
+		{
+			fprintf(pf2, "%s %s %.2f %s", usuariocomp, dnicomp, cuenta->saldo, emailcomp);
+		}
+		else if (strcmp(usuariodestino, usuariocomp) == 0) //Si es el usuario destino
+		{
+			fprintf(pf2, "%s %s %.2f %s", usuariocomp, dnicomp, saldodestino, emailcomp);
+		}
+		else
+			fprintf(pf2, "%s %s %.2f %s", usuariocomp, dnicomp, saldocomp, emailcomp);
+
+		if (linea != lineafinal)
+			fprintf(pf2, "\n");
+	}
+
+	if (fclose(pf) != 0)
+		printf("Problemas al cerrar el fichero.");
+	if (fclose(pf2) != 0)
+		printf("Problemas al cerrar el fichero.");
+
+	sobreescribir(lineafinal);
+
+	printf("\nTransferencia realizada con exito. Su saldo restante es de %.2f euros.", cuenta->saldo);
+}
+
+void ajustescuenta(CUENTAS* cuenta, int lineafinal)
+{
+	char usuariocomp[DIM], dnicomp[10], emailcomp[DIM], usuarionuevo[DIM], opc, letra;
+	float saldocomp;
+	int cambiousuario, linea = 0, i;
+
+	printf("\n\n\t\tAjustes de la cuenta.");
+
+	do
+	{
+		cambiousuario = 0;
+		printf("\n\t\tElija una opcion:\n\t1- Cambiar nombre de usuario.\n\t2- Cambiar contraseña (DNI).\n\t3- Cambiar email.\n\t4- Salir.\n");
+		opc = _getch();
+		switch (opc)
+		{
+		case '1':
+			printf("\nIntroduzca nuevo nombre de usuario: ");
+			scanf_s("%20s", usuarionuevo, (unsigned)_countof(usuarionuevo));
+			cambiousuario = 1;
+			break;
+		case '2':
+			do {
+				i = 0;
+				letra = 0;
+				printf("\nIntroduzca nueva contraseña: ");
+				scanf_s("%10s", cuenta->dni, (unsigned)_countof(cuenta->dni));
+				while (cuenta->dni[i] != '\0')
+				{
+					if (cuenta->dni[i] > 96 && cuenta->dni[i] < 123)//comprobamos que tenga letra minúscula
+						letra++;
+					i++;
+				}
+				if (letra == 0)
+					printf("\nDNI incorrecto.");
+			} while (letra == 0);
+			break;
+		case '3':
+			do {
+				i = 0;
+				letra = 0;
+				printf("\nIntroduzca nuevo email: ");
+				scanf_s("%20s", cuenta->email, (unsigned)_countof(cuenta->email));
+				while (cuenta->email[i] != '\0')
+				{
+					if (cuenta->email[i] == '@')//comprobamos que tenga @
+						letra++;
+					i++;
+
+				}
+				if (letra == 0)
+					printf("\nEmail incorrecto.");
+			} while (letra == 0);
+			break;
+
+		case '4':
+			break;
+
+		default:
+			printf("\nOpcion incorrecta.");
+		}
+
+		if (opc != '4')
+		{
+			FILE* pf, * pf2;
+			errno_t err, err2;
+			err = fopen_s(&pf, "gente.txt", "r");
+			err2 = fopen_s(&pf2, "mover.txt", "w");
+
+			if (err != NULL)
+			{
+				printf("\nError en la apertura.");
+				exit(1);
+			}
+
+			if (err2 != NULL)
+			{
+				printf("\nError en la apertura 2.");
+				exit(1);
+			}
+
+			while (!feof(pf)) //Cogemos los datos del usuario y los copiamos a un fichero vacío, para luego copiarlos de vuelta
+			{
+				linea++;
+
+				fscanf_s(pf, "%s%s%f%s", usuariocomp, _countof(usuariocomp), dnicomp, _countof(dnicomp), &saldocomp, emailcomp, _countof(emailcomp));
+
+				if (strcmp(cuenta->nombre, usuariocomp) == 0)
+				{
+					if (cambiousuario = 1)
+						strcpy_s(cuenta->nombre, usuarionuevo);
+					fprintf(pf2, "%s %s %.2f %s", cuenta->nombre, cuenta->dni, cuenta->saldo, cuenta->email);
+				}
+				else
+					fprintf(pf2, "%s %s %.2f %s", usuariocomp, dnicomp, saldocomp, emailcomp);
+				
+				if (linea != lineafinal)
+					fprintf(pf2, "\n");
+			}
+
+			if (fclose(pf) != 0)
+				printf("Problemas al cerrar el fichero.");
+			if (fclose(pf2) != 0)
+				printf("Problemas al cerrar el fichero.");
+
+			sobreescribir(lineafinal); //Accedemos a una funcion para sobreescribir el fichero original con el nuevo
+		}
+	} while (opc != '4');
+}
+
+void sobreescribir(int lineafinal) { //Copiamos el contenido del fichero nuevo de vuelta al original
+	char usuariocomp[DIM], dnicomp[10], emailcomp[DIM];
+	float saldocomp;
+	int linea = 0;
+
+
+	FILE* pf, * pf2;
+	errno_t err, err2;
+	err = fopen_s(&pf, "gente.txt", "w");
+	err2 = fopen_s(&pf2, "mover.txt", "r");
+
+	if (err != NULL)
+	{
+		printf("Error en la apertura.\n");
+		exit(1);
+	}
+
+	if (err2 != NULL)
+	{
+		printf("Error en la apertura 2.\n");
+		exit(1);
+	}
+
+	while (!feof(pf2))
+	{
+		linea++;
+		fscanf_s(pf2, "%s%s%f%s", usuariocomp, _countof(usuariocomp), dnicomp, _countof(dnicomp), &saldocomp, emailcomp, _countof(emailcomp));
+		fprintf(pf, "%s %s %.2f %s", usuariocomp, dnicomp, saldocomp, emailcomp);
+		if (linea != lineafinal)
+			fprintf(pf, "\n");
+	}
+
+	fclose(pf);
+	fclose(pf2);
 }
 
 //Arduino
-void autoConnect(SerialPort* arduino, char* incomingData) {
+int autoConnect(SerialPort* arduino, char* incomingData) {
 	char sendData = 0, receiveData = '0';
 
 	// Espera la conexion con Arduino
@@ -236,17 +524,24 @@ void autoConnect(SerialPort* arduino, char* incomingData) {
 	//Comprueba si arduino esta conectado
 	if (isConnected(arduino))
 	{
-		printf("Conectado con Arduino en el puerto %s\n", arduino->portName);
+		printf("\nConectado con Arduino en el puerto %s\n", arduino->portName);
 	}
 
 	//Aplicacion
-	sendData = '1';
-	writeSerialPort(arduino, &sendData, sizeof(char));
-	while (receiveData != '9')
+	while (isConnected(arduino))
 	{
-		receiveData = readSerialPort(arduino, incomingData, MAX_DATA_LENGTH);
+		sendData = '1';
+		writeSerialPort(arduino, &sendData, sizeof(char));
+		while (receiveData != '9' && isConnected(arduino))
+		{
+			receiveData = readSerialPort(arduino, incomingData, MAX_DATA_LENGTH);
+		}
+		return 1;
 	}
 
 	if (!isConnected(arduino))
+	{
 		printf("Se ha perdido la conexión con Arduino\n");
+		return 9;
+	}
 }
