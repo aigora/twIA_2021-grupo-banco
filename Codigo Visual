@@ -38,10 +38,10 @@ int main()
 	char portName[] = "\\\\.\\COM3"; //Puerto serie
 	char incomingData[MAX_DATA_LENGTH]; //Buffer
 	arduino = (SerialPort*)malloc(sizeof(SerialPort));*/
-	
+
 	do
 	{
-		printf("\n\n\t\tBienvenido al banco. Desea crear una cuenta o iniciar sesion?\n\n\tA- CREAR UNA CUENTA\n\tB- INICIAR SESION\n");
+		printf("\n\n\t\tBienvenido al banco. Desea crear una cuenta o iniciar sesion?\n\n\tA- CREAR UNA CUENTA\n\tB- INICIAR SESION\n\t E-SALIR");
 		do {
 			sn = _getch();
 			if (sn == 'A')
@@ -129,10 +129,10 @@ void crearcuenta()
 		printf("\nIntroduzca su saldo actual: ");
 		scanf_s("%f", &dinero);
 	} while (dinero <= 0.0);
-	
+
 	FILE* pf;
 	errno_t err;
-	err = fopen_s(&pf, "gente.txt", "a+");
+	err = fopen_s(&pf, "gente.txt", "w");
 
 	if (err != NULL)
 	{
@@ -169,7 +169,7 @@ int iniciarsesion(CUENTAS* cuenta)
 		printf("\nUsuario: ");
 		scanf_s("%20s", usuario, (unsigned)_countof(usuario));
 
-		rewind (pf);
+		rewind(pf);
 		while (!feof(pf))
 		{
 			fscanf_s(pf, "%s%s%f%s", usuariocomp, _countof(usuariocomp), dnicomp, _countof(dnicomp), &saldocomp, emailcomp, _countof(emailcomp));
@@ -205,7 +205,7 @@ void consultasaldo(CUENTAS cuenta)
 	printf("\n\nSu saldo actual es de: %.2f euros.", cuenta.saldo);
 }
 
-void ingresar_retirar(CUENTAS* cuenta, int lineafinal, SerialPort* arduino, char* portName, char* incomingData)
+void ingresar_retirar(CUENTAS* cuenta, int lineafinal) //*SerialPort* arduino,*/ char* portName, char* incomingData)
 {
 	char usuariocomp[DIM], dnicomp[10], emailcomp[DIM], opc;
 	float movido, saldocomp;
@@ -231,21 +231,33 @@ void ingresar_retirar(CUENTAS* cuenta, int lineafinal, SerialPort* arduino, char
 		}
 		else if (opc == '2')
 		{
-			printf("\nCuanto dinero desea retirar? ");
-			scanf_s("%f", &movido);
-			//Arduino
-			//Crear_Conexion(arduino, portName);
-			ard = 1;// autoConnect(arduino, incomingData);
-			if (ard == 1)
+			do
 			{
-				printf("\nRetirada completada correctamente.");
-				cuenta->saldo -= movido;
-			}
-			else
-				printf("\nSe ha producido un error al retirar el dinero.");
+
+				printf("\nTienes %f euros\nCuanto dinero desea retirar? ",cuenta->saldo);
+				scanf_s("%f", &movido);
+				//Arduino
+				//Crear_Conexion(arduino, portName);
+				ard = 1;// autoConnect(arduino, incomingData);
+				if (ard == 1)
+				{
+					if (movido < cuenta->saldo)
+					{
+						printf("\nRetirada completada correctamente.");
+						cuenta->saldo -= movido;
+					}
+					else
+					{
+						printf("no hay tanto saldo");
+					}
+					
+				}
+				else
+					printf("\nSe ha producido un error al retirar el dinero.");
+			} while (movido <= cuenta->saldo);
 		}
 	} while (opc != '1' && opc != '2');
-	
+
 	if (ard == 1)
 	{
 		FILE* pf, * pf2;
@@ -273,7 +285,7 @@ void ingresar_retirar(CUENTAS* cuenta, int lineafinal, SerialPort* arduino, char
 			fscanf_s(pf, "%s%s%f%s", usuariocomp, _countof(usuariocomp), dnicomp, _countof(dnicomp), &saldocomp, emailcomp, _countof(emailcomp));
 
 			//Alternativa al strcmp
-			for (i = 0; (unsigned) i < strlen(usuariocomp); i++)
+			for (i = 0; (unsigned)i < strlen(usuariocomp); i++)
 			{
 				if (cuenta->nombre[i] == usuariocomp[i]) //Comprobamos el usuario
 					prueba++;
@@ -285,7 +297,7 @@ void ingresar_retirar(CUENTAS* cuenta, int lineafinal, SerialPort* arduino, char
 
 			if (linea != lineafinal)
 				fprintf(pf2, "\n");
-		} 
+		}
 
 		if (fclose(pf) != 0)
 			printf("Problemas al cerrar el fichero.");
