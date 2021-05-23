@@ -12,8 +12,7 @@
 #define MAX_DATA_LENGTH 255 //Arduino
 
 typedef struct {
-	char nombre[DIM];
-	char dni[10];
+	char nombre[DIM],dni[10];
 	float saldo;
 	char email[DIM];
 } CUENTAS;
@@ -84,7 +83,7 @@ int main()
 				printf("\nSe ha cerrado la sesion.");
 			}
 		} while (sn != 'A' && sn != 'B' && sn != 'E');
-	} while (sn != 'E'); //no se muestra como opcion al usuario, pero hay una tecla para parar el programa
+	} while (sn != 'E'); 
 }
 
 void crearcuenta()
@@ -132,7 +131,7 @@ void crearcuenta()
 
 	FILE* pf;
 	errno_t err;
-	err = fopen_s(&pf, "gente.txt", "w");
+	err = fopen_s(&pf, "gente.txt", "a+");
 
 	if (err != NULL)
 	{
