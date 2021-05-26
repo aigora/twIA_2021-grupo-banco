@@ -12,7 +12,7 @@
 #define MAX_DATA_LENGTH 255 //Arduino
 
 typedef struct {
-	char nombre[DIM],dni[10];
+	char nombre[DIM], dni[10];
 	float saldo;
 	char email[DIM];
 } CUENTAS;
@@ -41,7 +41,7 @@ int main()
 
 	do
 	{
-		printf("\n\n\t\tBienvenido al banco. Desea crear una cuenta o iniciar sesion?\n\n\tA- CREAR UNA CUENTA\n\tB- INICIAR SESION\n\tE- SALIR");
+		printf("\n\n\t\tBienvenido al banco. Desea crear una cuenta o iniciar sesion?\n\n\tA- CREAR UNA CUENTA\n\tB- INICIAR SESION\n\tE- SALIR\n");
 		do {
 			sn = _getch();
 			if (sn == 'A')
@@ -84,7 +84,7 @@ int main()
 				printf("\nSe ha cerrado la sesion.");
 			}
 		} while (sn != 'A' && sn != 'B' && sn != 'E');
-	} while (sn != 'E'); 
+	} while (sn != 'E');
 }
 
 void crearcuenta()
@@ -211,7 +211,7 @@ void ingresar_retirar(CUENTAS* cuenta, int lineafinal, SerialPort* arduino, char
 	float movido, saldocomp;
 	int prueba = 0, ard, linea = 0, i;
 
-	printf("\n\n\t\tElija una opcion:\n\t1- Ingresar\n\t2- Retirar\n");
+	printf("\n\n\t\tElija una opcion:\n\n\t1- Ingresar\n\t2- Retirar\n");
 	do {
 		opc = _getch();
 		if (opc == '1')
@@ -232,27 +232,20 @@ void ingresar_retirar(CUENTAS* cuenta, int lineafinal, SerialPort* arduino, char
 		{
 			do
 			{
-
-				printf("\nTienes %f euros\nCuanto dinero desea retirar? ",cuenta->saldo);
+				printf("\nSu saldo es de %.2f euros.\nCuanto dinero desea retirar? ", cuenta->saldo);
 				scanf_s("%f", &movido);
-				//Arduino
-				ard = autoConnect(arduino, incomingData);
-				if (ard == 1)
-				{
-					if (movido < cuenta->saldo)
-					{
-						printf("\nRetirada completada correctamente.");
-						cuenta->saldo -= movido;
-					}
-					else
-					{
-						printf("no hay tanto saldo");
-					}
-					
-				}
-				else
-					printf("\nSe ha producido un error al retirar el dinero.");
-			} while (movido <= cuenta->saldo);
+				if (movido > cuenta->saldo)
+					printf("\nSaldo insuficiente.");
+			} while (movido > cuenta->saldo);
+			//Arduino
+			ard = autoConnect(arduino, incomingData);
+			if (ard == 1)
+			{
+				printf("\nRetirada completada correctamente.");
+				cuenta->saldo -= movido;
+			}
+			else
+				printf("\nSe ha producido un error al retirar el dinero.");
 		}
 	} while (opc != '1' && opc != '2');
 
