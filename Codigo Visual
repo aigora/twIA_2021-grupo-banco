@@ -5,8 +5,8 @@
 #include <windows.h>
 #include <string.h>
 #include <conio.h> //Para el _getch()
-//#include "SerialPort.h" //subido en el Github
-//#include "SerialPort.c" //subido en el Github
+#include "SerialPort.h" //subido en el Github
+#include "SerialPort.c" //subido en el Github
 
 #define DIM 21
 #define MAX_DATA_LENGTH 255 //Arduino
@@ -21,10 +21,10 @@ void crearcuenta();
 int iniciarsesion(CUENTAS*);
 void ajustescuenta(CUENTAS*, int);
 void consultasaldo(CUENTAS);
-void ingresar_retirar(CUENTAS*, int); //SerialPort*, char*, char*);
+void ingresar_retirar(CUENTAS*, int, SerialPort*, char*);
 void transferencias(CUENTAS*, int);
 void sobreescribir(int);
-//int autoConnect(SerialPort*, char*);
+int autoConnect(SerialPort*, char*);
 
 int main()
 {
@@ -33,14 +33,15 @@ int main()
 	CUENTAS cuenta;
 
 	//Arduino
-	/*SerialPort* arduino;
+	SerialPort* arduino;
 	char portName[] = "\\\\.\\COM3"; //Puerto serie
 	char incomingData[MAX_DATA_LENGTH]; //Buffer
-	arduino = (SerialPort*)malloc(sizeof(SerialPort));*/
+	arduino = (SerialPort*)malloc(sizeof(SerialPort));
+	Crear_Conexion(arduino, portName);
 
 	do
 	{
-		printf("\n\n\t\tBienvenido al banco. Desea crear una cuenta o iniciar sesion?\n\n\tA- CREAR UNA CUENTA\n\tB- INICIAR SESION\n\t E-SALIR");
+		printf("\n\n\t\tBienvenido al banco. Desea crear una cuenta o iniciar sesion?\n\n\tA- CREAR UNA CUENTA\n\tB- INICIAR SESION\n\tE- SALIR");
 		do {
 			sn = _getch();
 			if (sn == 'A')
@@ -61,7 +62,7 @@ int main()
 							break;
 
 						case '2':
-							ingresar_retirar(&cuenta, lineas); //arduino, portName, incomingData);
+							ingresar_retirar(&cuenta, lineas, arduino, incomingData);
 							break;
 
 						case '3':
@@ -204,7 +205,7 @@ void consultasaldo(CUENTAS cuenta)
 	printf("\n\nSu saldo actual es de: %.2f euros.", cuenta.saldo);
 }
 
-void ingresar_retirar(CUENTAS* cuenta, int lineafinal) //*SerialPort* arduino,*/ char* portName, char* incomingData)
+void ingresar_retirar(CUENTAS* cuenta, int lineafinal, SerialPort* arduino, char* incomingData)
 {
 	char usuariocomp[DIM], dnicomp[10], emailcomp[DIM], opc;
 	float movido, saldocomp;
@@ -218,8 +219,7 @@ void ingresar_retirar(CUENTAS* cuenta, int lineafinal) //*SerialPort* arduino,*/
 			printf("\nCuanto dinero desea ingresar? ");
 			scanf_s("%f", &movido);
 			//Arduino
-			//Crear_Conexion(arduino, portName);
-			ard = 1;// autoConnect(arduino, incomingData);
+			ard = autoConnect(arduino, incomingData);
 			if (ard == 1)
 			{
 				printf("\nIngreso completado correctamente.");
@@ -236,8 +236,7 @@ void ingresar_retirar(CUENTAS* cuenta, int lineafinal) //*SerialPort* arduino,*/
 				printf("\nTienes %f euros\nCuanto dinero desea retirar? ",cuenta->saldo);
 				scanf_s("%f", &movido);
 				//Arduino
-				//Crear_Conexion(arduino, portName);
-				ard = 1;// autoConnect(arduino, incomingData);
+				ard = autoConnect(arduino, incomingData);
 				if (ard == 1)
 				{
 					if (movido < cuenta->saldo)
@@ -552,7 +551,7 @@ void sobreescribir(int lineafinal) { //Copiamos el contenido del fichero nuevo d
 }
 
 //Arduino
-/*int autoConnect(SerialPort* arduino, char* incomingData) {
+int autoConnect(SerialPort* arduino, char* incomingData) {
 	char sendData = 0;
 
 	// Espera la conexion con Arduino
@@ -586,4 +585,4 @@ void sobreescribir(int lineafinal) { //Copiamos el contenido del fichero nuevo d
 		printf("Se ha perdido la conexión con Arduino\n");
 		return 9;
 	}
-}*/
+}
